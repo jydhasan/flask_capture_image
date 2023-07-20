@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Auto Webcam Capture</title>
+</head>
+
+<body>
+    <h1>Auto Webcam Capture</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        let intervalId = null;
+
+        // Check if the browser supports the getUserMedia API
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    startAutoCapture(5000); // Start auto capture every 5 seconds
+                })
+                .catch((err) => {
+                    console.error('Error accessing the webcam: ', err);
+                });
+        } else {
+            alert('Your browser does not support the getUserMedia API');
+        }
+
+        // Function to capture image from the video stream
+        function captureImage() {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imgData = canvas.toDataURL('image/png');
+
+            // Send the image data to the Flask server using a POST request
+            fetch('/capture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image_data: imgData }),
+            })
+                .then((response) => {
+                    console.log('Image sent successfully');
+                })
+                .catch((error) => {
+                    console.error('Error sending image: ', error);
+                });
+        }
+
+        // Function to start auto capture at regular intervals
+        function startAutoCapture(interval) {
+            intervalId = setInterval(captureImage, interval);
+        }
+    </script>
+</body>
+
+</html>

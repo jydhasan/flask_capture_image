@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User View - Flask Webcam App</title>
+</head>
+
+<body>
+    <h1>User View - Live Webcam Stream</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <script>
+        // Access the webcam stream
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                var video = document.getElementById("video");
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.log("An error occurred: " + err);
+            });
+    </script>
+</body>
+
+</html>
